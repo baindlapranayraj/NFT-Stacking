@@ -49,7 +49,7 @@ const nftSetup = async (
     let nftMint = generateSigner(umi);
     let collectionMint = generateSigner(umi);
 
-    let createrKeypair = umi.eddsa.createKeypairFromSecretKey(user.secretKey);
+    let createrKeypair = umi.eddsa.createKeypairFromSecretKey(user.secretKey); // user Keypair in umi
     let createrSigner = createSignerFromKeypair(umi, createrKeypair); // signer for user/creater
     umi.use(signerIdentity(createrSigner));
     umi.use(mplTokenMetadata());
@@ -70,11 +70,16 @@ const nftCollection = async (umi: Umi, collectionMint: KeypairSigner) => {
       `🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 This thing is working 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥`
     );
 
-    let trx = await createNft(umi, {
+    await createNft(umi, {
       mint: collectionMint,
       name: "Bhudha",
       uri: "https://lavender-worthy-duck-16.mypinata.cloud/ipfs/bafkreidexwujuv7rfdkdkk3ibwldy7gitmksnmpe2ti24nlfonnjo7kcfa",
       sellerFeeBasisPoints: percentAmount(5),
+      creators: null,
+      collectionDetails: {
+        __kind: "V1",
+        size: 10,
+      },
     }).sendAndConfirm(umi);
 
     console.log(`✅ Your collection is ${collectionMint.publicKey}`);
@@ -158,40 +163,40 @@ describe("nft-stacking", () => {
     }
   });
 
-  // it("Initialize User", async () => {
-  //   try {
-  //     let trx = await program.methods
-  //       .initializeUser()
-  //       .accountsStrict({
-  //         configPda: configPDA,
-  //         user: user.publicKey,
-  //         userPda: userPDA,
-  //         systemProgram: anchor.web3.SystemProgram.programId,
-  //       })
-  //       .signers([user])
-  //       .rpc();
+  it("Initialize User", async () => {
+    try {
+      let trx = await program.methods
+        .initializeUser()
+        .accountsStrict({
+          configPda: configPDA,
+          user: user.publicKey,
+          userPda: userPDA,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([user])
+        .rpc();
 
-  //     console.log(`Successfully tested user initialization ${trx.toString()}`);
-  //   } catch (e) {
-  //     console.log(
-  //       `You got error while testing Initialize User instruction ${e}`
-  //     );
-  //   }
-  // });
+      console.log(`Successfully tested user initialization ${trx.toString()}`);
+    } catch (e) {
+      console.log(
+        `You got error while testing Initialize User instruction ${e}`
+      );
+    }
+  });
 
-  // it("Test staking NFT", async () => {
-  //   try {
-  //     await program.methods
-  //       .stackNft()
-  //       .accountsStrict({
-  //         user: user.publicKey,
-  //         configAccount: configPDA,
-  //         userAccount: userPDA,
-  //       })
-  //       .signers([user])
-  //       .rpc();
-  //   } catch (e) {
-  //     console.log(`You got error while trying to test staking NFT ${e}`);
-  //   }
-  // });
+  it("Test staking NFT", async () => {
+    try {
+      await program.methods
+        .stackNft()
+        .accountsStrict({
+          user: user.publicKey,
+          configAccount: configPDA,
+          userAccount: userPDA,
+        })
+        .signers([user])
+        .rpc();
+    } catch (e) {
+      console.log(`You got error while trying to test staking NFT ${e}`);
+    }
+  });
 });
