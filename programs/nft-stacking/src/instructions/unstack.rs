@@ -7,7 +7,7 @@ use anchor_spl::{
         },
         MasterEditionAccount, Metadata, MetadataAccount,
     },
-    token_interface::{mint_to, revoke, Mint, Revoke, TokenAccount, TokenInterface},
+    token_interface::{revoke, Mint, Revoke, TokenAccount, TokenInterface},
 };
 
 use crate::{
@@ -148,21 +148,24 @@ impl<'info> Unstack<'info> {
         // Lifting the Ownership
         let ctx = CpiContext::new_with_signer(program, accounts, signers_seeds);
         revoke(ctx)?;
+        self.user_account.no_of_stacked_nft -= 1;
 
         self.reward_user()?;
         Ok(())
     }
 
     fn reward_user(&mut self) -> Result<()> {
-        // let amount;
         let clock = Clock::get().unwrap();
         let current_time = clock.unix_timestamp;
-        let total_time_stacked = current_time - self.stack_account.stack_time_at;
+        let time_elapsed =
+            ((current_time as u64) - (self.stack_account.stack_time_at) as u64) / 86400; // in days
 
-        // let ctx = CpiContext::new_with_signer(program, accounts, sigener_seeds);
+        let points = match self.config_account.min_freez_period <= (time_elapsed as u32) {
+            true => time_elapsed * (self.config_account.reward_per_stack as u64),
+            false => 0,
+        };
 
-        // mint_to(ctx, amount);
-        // Todo:- Complete the reward and Testing
+        self.user_account.reward_point += points as u32;
 
         Ok(())
     }
@@ -171,3 +174,5 @@ impl<'info> Unstack<'info> {
 // reward user
 // unfreez the NFT
 // update pda
+
+// Dividing by 86400 in the code snippet is used to convert the time elapsed from seconds into days.

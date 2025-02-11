@@ -4,6 +4,7 @@ declare_id!("7XX5oFNDXNfECEz1AdaqApZKx24rRciaThz8vKxSu3YP");
 
 pub mod constant;
 pub mod error;
+pub mod helper;
 pub mod instructions;
 pub mod state;
 
@@ -26,6 +27,21 @@ pub mod nft_stacking {
 
     pub fn initialize_user(ctx: Context<InitUser>) -> Result<()> {
         ctx.accounts.save_user_data(ctx.bumps)?;
+        Ok(())
+    }
+
+    pub fn stack_nft(ctx: Context<Stack>) -> Result<()> {
+        ctx.accounts.stack(ctx.bumps)?;
+        Ok(())
+    }
+
+    pub fn unstack_nft(ctx: Context<Unstack>) -> Result<()> {
+        ctx.accounts.unstack()?;
+        Ok(())
+    }
+
+    pub fn claim(ctx: Context<Claim>) -> Result<()> {
+        ctx.accounts.claim_reward()?;
         Ok(())
     }
 }
